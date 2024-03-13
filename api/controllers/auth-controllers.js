@@ -22,7 +22,7 @@ export const register = asyncHandler(async (req, res) => {
     password: hashedPassword,
   });
 
-  const token = jwt.sign({ email }, process.env.JWT_SECRET, {
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
     expiresIn: "1d",
   });
 
@@ -55,7 +55,7 @@ export const login = asyncHandler(async (req, res) => {
 
   if (!isPasswordMatch) throw new errorHandler(400, "Invalid credentials");
 
-  const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, {
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
     expiresIn: "1d",
   });
 
