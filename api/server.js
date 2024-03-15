@@ -5,6 +5,7 @@ import authRoutes from "./routes/auth-routes.js";
 import userRoutes from "./routes/user-routes.js";
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
+
 dotenv.config();
 
 mongoose
