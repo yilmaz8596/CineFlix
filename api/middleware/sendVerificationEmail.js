@@ -1,11 +1,11 @@
 import nodemailer from "nodemailer";
 
-export const sendVerificationEmail = (token, email, username) => {
+export const sendVerificationEmail = (token, email) => {
   const html = `
             <html>
             <body>
             <h1>Email Verification</h1>
-            <p>Hello ${username},</p>
+            <p>Hello ${email},</p>
             <p>Thanks for registering with us. Please verify your email by clicking the link below.</p>
             <p><a href="${process.env.CLIENT_URL}/verify-email/${token}">Verify Email</a></p>
             <p>If you did not request this email, please ignore it.</p>

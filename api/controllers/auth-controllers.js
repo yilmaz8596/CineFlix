@@ -6,19 +6,18 @@ import { errorHandler } from "../util/error-handler.js";
 import { sendVerificationEmail } from "../middleware/sendVerificationEmail.js";
 import { sendPasswordResetEmail } from "../middleware/sendPasswordResetEmail.js";
 export const register = asyncHandler(async (req, res) => {
-  const { username, email, password } = req.body;
+  const { email, password } = req.body;
 
   const userExists = await User.findOne({ email });
 
   if (userExists) throw new errorHandler(400, "User already exists");
-  if (!username || !email || !password) {
+  if (!email || !password) {
     throw new errorHandler(400, "Please fill in all fields");
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const user = await User.create({
-    username,
     email,
     password: hashedPassword,
   });
@@ -32,7 +31,7 @@ export const register = asyncHandler(async (req, res) => {
     expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
   });
 
-  sendVerificationEmail(token, email, username);
+  sendVerificationEmail(token, email);
   await user.save();
 
   const { password: pass, ...rest } = user._doc;
@@ -68,11 +67,7 @@ export const login = asyncHandler(async (req, res) => {
 
   const { password: pass, ...rest } = user._doc;
 
-  res.status(200).json({
-    success: true,
-    message: "You have successfully logged in!",
-    rest,
-  });
+  res.status(200).json(rest);
 });
 
 export const googleLogin = asyncHandler(async (req, res) => {
@@ -121,20 +116,25 @@ export const googleRegister = asyncHandler(async (req, res) => {
 });
 
 export const verifyEmail = async (req, res, next) => {
-  const token = req.cookies.token;
+  const token = req.params.token;
+
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.id);
-    if (user) {
-      user.active = true;
-      await user.save();
-      res
-        .status(200)
-        .json({ message: "Email has been verified", user: user._doc });
+
+    if (!user) {
+      throw new errorHandler(400, "Invalid token");
     }
+
+    user.active = true;
+    await user.save();
+
+    res
+      .status(200)
+      .json({ message: "Email has been verified", user: user._doc });
   } catch (error) {
     console.log(error);
-    next(error);
+    throw new errorHandler(400, "Invalid token");
   }
 };
 
@@ -144,7 +144,7 @@ export const passwordResetRequest = asyncHandler(async (req, res) => {
   const token = jwt.sign("token", token, process.env.JWT_SECRET, {
     expiresIn: "1d",
   });
-  sendPasswordResetEmail(token, user.email, user.username);
+  sendPasswordResetEmail(token, user.email);
   res
     .cookie("token", token, {
       httpOnly: true,

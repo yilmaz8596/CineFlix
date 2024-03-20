@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.post("/register", register);
 router.post("/login", login);
-router.get("/verify-email/:token", verifyEmail);
+router.post("/verify-email/:token", verifyEmail);
 router.post("/password-reset-request", passwordResetRequest);
 router.post("/password-reset/:token", passwordReset);
 router.post("/google-login", googleLogin);

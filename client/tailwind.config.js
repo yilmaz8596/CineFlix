@@ -9,5 +9,11 @@ export default {
       },
     },
   },
+  variants: {
+    extend: {
+      background: ["hover"], // Enable hover variant for background colors
+      textColor: ["hover"], // Enable hover variant for text colors
+    },
+  },
   plugins: [],
 };
